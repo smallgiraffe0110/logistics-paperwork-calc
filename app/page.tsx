@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Share2, ArrowRight, FileText, Clock, DollarSign, CheckCircle } from 'lucide-react';
+import { Share2, FileText, Clock, DollarSign, CheckCircle } from 'lucide-react';
 import Header from '@/components/Header';
 import InputForm from '@/components/Calculator/InputForm';
 import ResultsDisplay from '@/components/Calculator/ResultsDisplay';
@@ -14,7 +14,7 @@ import ShareModal from '@/components/ShareModal';
 import Button from '@/components/ui/Button';
 import { CalculatorInputs, CalculationResults } from '@/types';
 import { DEFAULT_INPUTS } from '@/lib/constants';
-import { calculateCosts, formatCurrency } from '@/lib/calculations';
+import { calculateCosts } from '@/lib/calculations';
 import { decodeParamsToInputs, trackEvent } from '@/lib/utils';
 
 function CalculatorApp() {
@@ -71,53 +71,37 @@ function CalculatorApp() {
     }
   };
 
-  // Compute live preview savings for hero
-  const previewResults = calculateCosts(DEFAULT_INPUTS);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 text-white">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx%3D%221%22%20cy%3D%221%22%20r%3D%221%22%20fill%3D%22rgba(255%2C255%2C255%2C0.05)%22%2F%3E%3C%2Fsvg%3E')] opacity-50" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+      {/* Page intro */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
+            transition={{ duration: 0.5 }}
+            className="max-w-3xl"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-              Stop Burning{' '}
-              <span className="text-amber-300">
-                {formatCurrency(previewResults.annualSavings)}
-              </span>{' '}
-              Per Year on Paperwork
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+              Logistics Paperwork Cost Calculator
             </h1>
-            <p className="text-lg md:text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-              See exactly how much manual document review is costing your logistics operation. No
-              signup required.
+            <p className="text-base md:text-lg text-gray-600 mb-6 max-w-2xl">
+              See exactly how much manual document review is costing your operation.
+              Docs × time × wage, plus the rework hit from rejections.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <a href="#calculator">
-                <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 shadow-xl">
-                  Calculate My Cost
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </a>
-            </div>
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-purple-200">
+            <div className="flex flex-wrap gap-6 text-sm text-gray-500">
               <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-4 w-4" />
+                <CheckCircle className="h-4 w-4 text-purple-600" />
                 No setup fee
               </span>
               <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
+                <Clock className="h-4 w-4 text-purple-600" />
                 Live in 1 week
               </span>
               <span className="flex items-center gap-1.5">
-                <FileText className="h-4 w-4" />
+                <FileText className="h-4 w-4 text-purple-600" />
                 Works with your existing TMS
               </span>
             </div>
@@ -161,22 +145,17 @@ function CalculatorApp() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8 }}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-white text-center"
+                  className="bg-white border border-gray-200 rounded-2xl p-8 text-center"
                 >
-                  <h3 className="text-2xl font-bold mb-2">Ready to Stop Drowning in Paperwork?</h3>
-                  <p className="text-purple-100 mb-6 max-w-lg mx-auto">
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900">
+                    Ready to Stop Drowning in Paperwork?
+                  </h3>
+                  <p className="text-gray-600 mb-6 max-w-lg mx-auto">
                     Join logistics teams cutting doc review time by 60%+.
                   </p>
                   <div className="flex flex-wrap justify-center gap-3">
-                    <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100">
-                      Schedule a Demo
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="border-white text-white hover:bg-white/10"
-                      onClick={() => setShareOpen(true)}
-                    >
+                    <Button size="lg">Schedule a Demo</Button>
+                    <Button variant="outline" size="lg" onClick={() => setShareOpen(true)}>
                       <Share2 className="h-4 w-4 mr-2" />
                       Share Report
                     </Button>
