@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calculator, ClipboardList, FileText, Users } from 'lucide-react';
-import Input from '@/components/ui/Input';
+import { Calculator, ClipboardList, FileText } from 'lucide-react';
+import Slider from '@/components/ui/Slider';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -24,37 +23,13 @@ const workflowOptions = Object.entries(WORKFLOWS)
   }));
 
 export default function InputForm({ inputs, onInputChange, onCalculate }: InputFormProps) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
   const updateInput = (field: keyof CalculatorInputs, value: string | number) => {
     onInputChange({ ...inputs, [field]: value });
-    if (errors[field]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    if (inputs.docsPerMonth < 0) newErrors.docsPerMonth = 'Must be 0 or greater';
-    if (inputs.minutesPerDoc < 0) newErrors.minutesPerDoc = 'Must be 0 or greater';
-    if (inputs.employees < 1) newErrors.employees = 'Must be at least 1';
-    if (inputs.rejectionRate < 0 || inputs.rejectionRate > 100) {
-      newErrors.rejectionRate = 'Must be between 0 and 100';
-    }
-    if (inputs.hourlyWage <= 0) newErrors.hourlyWage = 'Must be greater than 0';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      onCalculate();
-    }
+    onCalculate();
   };
 
   const applyPreset = (presetKey: string) => {
@@ -100,49 +75,37 @@ export default function InputForm({ inputs, onInputChange, onCalculate }: InputF
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Input
+            <Slider
               label="Documents per Employee / Month"
-              type="number"
-              value={inputs.docsPerMonth || ''}
-              onChange={(e) => updateInput('docsPerMonth', Number(e.target.value))}
-              placeholder="400"
+              value={inputs.docsPerMonth}
+              onChange={(v) => updateInput('docsPerMonth', v)}
+              min={0}
+              max={10000}
+              step={50}
+              format={(n) => n.toLocaleString()}
               hint="BOLs, PODs, invoices, customs forms — per person, per month"
-              error={errors.docsPerMonth}
-              min={0}
-              aria-label="Documents per employee per month"
             />
 
-            <Input
+            <Slider
               label="Minutes per Document"
-              suffix="min"
-              type="number"
-              value={inputs.minutesPerDoc || ''}
-              onChange={(e) => updateInput('minutesPerDoc', Number(e.target.value))}
-              placeholder="6"
+              value={inputs.minutesPerDoc}
+              onChange={(v) => updateInput('minutesPerDoc', v)}
+              min={1}
+              max={60}
+              step={1}
+              suffix=" min"
               hint="Average time to review and process one document"
-              error={errors.minutesPerDoc}
-              min={0}
-              aria-label="Minutes spent reviewing each document"
             />
 
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <Input
-                  label="Number of Employees"
-                  type="number"
-                  value={inputs.employees || ''}
-                  onChange={(e) => updateInput('employees', Number(e.target.value))}
-                  placeholder="3"
-                  hint="How many people review paperwork"
-                  error={errors.employees}
-                  min={1}
-                  aria-label="Number of employees reviewing paperwork"
-                />
-              </div>
-              <div className="pb-1">
-                <Users className="h-5 w-5 text-gray-400" />
-              </div>
-            </div>
+            <Slider
+              label="Number of Employees"
+              value={inputs.employees}
+              onChange={(v) => updateInput('employees', v)}
+              min={1}
+              max={100}
+              step={1}
+              hint="How many people review paperwork"
+            />
 
             <Select
               label="Current Workflow"
@@ -151,34 +114,28 @@ export default function InputForm({ inputs, onInputChange, onCalculate }: InputF
               onChange={(e) => updateInput('currentWorkflow', e.target.value)}
               aria-label="Select your current document workflow"
             />
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Input
+            <Slider
               label="Rejection / Re-Review Rate"
-              suffix="%"
-              type="number"
-              value={inputs.rejectionRate || ''}
-              onChange={(e) => updateInput('rejectionRate', Number(e.target.value))}
-              placeholder="12"
-              hint="Percent of docs that get kicked back and must be reviewed again."
-              error={errors.rejectionRate}
+              value={inputs.rejectionRate}
+              onChange={(v) => updateInput('rejectionRate', v)}
               min={0}
-              max={100}
-              aria-label="Document rejection and re-review rate percentage"
+              max={50}
+              step={1}
+              suffix="%"
+              hint="Percent of docs that get kicked back and must be reviewed again."
             />
 
-            <Input
+            <Slider
               label="Average Hourly Wage"
+              value={inputs.hourlyWage}
+              onChange={(v) => updateInput('hourlyWage', v)}
+              min={10}
+              max={100}
+              step={1}
               prefix="$"
-              type="number"
-              value={inputs.hourlyWage || ''}
-              onChange={(e) => updateInput('hourlyWage', Number(e.target.value))}
-              placeholder="28"
+              suffix="/hr"
               hint="Fully-loaded hourly cost of a paperwork employee"
-              error={errors.hourlyWage}
-              min={0}
-              aria-label="Average hourly wage for employees doing document review"
             />
           </div>
 

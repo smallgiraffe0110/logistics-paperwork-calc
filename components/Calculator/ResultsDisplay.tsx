@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingDown, DollarSign, Calendar, Clock, Timer } from 'lucide-react';
+import { TrendingDown, DollarSign, Calendar, Clock } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import { CalculationResults } from '@/types';
-import { formatCurrency, formatHours } from '@/lib/calculations';
+import { formatCurrency } from '@/lib/calculations';
 
 interface ResultsDisplayProps {
   results: CalculationResults;
@@ -88,7 +88,6 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
           </div>
           <p className="text-5xl md:text-6xl font-bold mb-2">
             <AnimatedNumber value={results.annualSavings} />
-            <span className="text-2xl md:text-3xl font-semibold align-baseline">/yr</span>
           </p>
           <p className="text-purple-200">per year by streamlining paperwork</p>
           {results.firstYearSavings > results.annualSavings && (
@@ -148,36 +147,6 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
                 {formatCurrency(results.optimizedAnnualCost)}/year
               </p>
               <p className="text-xs text-green-400 mt-1">No setup cost. No training cost.</p>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Paperwork Hours */}
-      <motion.div variants={itemVariants}>
-        <Card>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-orange-100 rounded-xl">
-              <Timer className="h-5 w-5 text-orange-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Time Lost to Paperwork</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-orange-50 rounded-xl">
-              <p className="text-sm font-medium text-orange-600 mb-1">Hours/mo on paperwork</p>
-              <p className="text-2xl font-bold text-orange-700">
-                {formatHours(results.currentMonthlyHours)}
-              </p>
-              <p className="text-xs text-orange-500 mt-1">per employee, current workflow</p>
-            </div>
-            <div className="p-4 bg-amber-50 rounded-xl">
-              <p className="text-sm font-medium text-amber-700 mb-1">of which spent on rework</p>
-              <p className="text-2xl font-bold text-amber-800">
-                {formatHours(results.currentReworkHours)}
-              </p>
-              <p className="text-xs text-amber-600 mt-1">
-                docs kicked back and re-reviewed
-              </p>
             </div>
           </div>
         </Card>
