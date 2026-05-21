@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calculator, ClipboardList, Users, Percent } from 'lucide-react';
+import { Calculator, ClipboardList, Users, FileText, Percent } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
@@ -13,7 +14,7 @@ import { WORKFLOWS, LOGISTICS_PRESETS } from '@/lib/constants';
 interface InputFormProps {
   inputs: CalculatorInputs;
   onInputChange: (inputs: CalculatorInputs) => void;
-  onCalculate?: () => void;
+  onCalculate: () => void;
 }
 
 const workflowOptions = Object.entries(WORKFLOWS)
@@ -23,9 +24,38 @@ const workflowOptions = Object.entries(WORKFLOWS)
     label: workflow.name,
   }));
 
-export default function InputForm({ inputs, onInputChange }: InputFormProps) {
+export default function InputForm({ inputs, onInputChange, onCalculate }: InputFormProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const updateInput = (field: keyof CalculatorInputs, value: string | number) => {
     onInputChange({ ...inputs, [field]: value });
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    if (inputs.docsPerMonth <= 0) newErrors.docsPerMonth = 'Must be greater than 0';
+    if (inputs.minutesPerDoc <= 0) newErrors.minutesPerDoc = 'Must be greater than 0';
+    if (inputs.employees <= 0) newErrors.employees = 'Must be at least 1';
+    if (inputs.rejectionRate < 0 || inputs.rejectionRate > 100) {
+      newErrors.rejectionRate = 'Must be between 0 and 100';
+    }
+    if (inputs.hourlyWage <= 0) newErrors.hourlyWage = 'Must be greater than 0';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validate()) {
+      onCalculate();
+    }
   };
 
   const applyPreset = (presetKey: string) => {
@@ -69,7 +99,7 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
           </div>
         </div>
 
-        <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <Input
@@ -79,6 +109,7 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
                 onChange={(e) => updateInput('docsPerMonth', Number(e.target.value))}
                 placeholder="1,200"
                 hint="BOLs, PODs, invoices, customs forms"
+                error={errors.docsPerMonth}
                 min={0}
                 aria-label="Documents per employee per month"
               />
@@ -102,6 +133,7 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
                 onChange={(e) => updateInput('minutesPerDoc', Number(e.target.value))}
                 placeholder="9"
                 hint="Average review + process time"
+                error={errors.minutesPerDoc}
                 min={0}
                 aria-label="Minutes per document"
               />
@@ -125,6 +157,7 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
                     value={inputs.employees || ''}
                     onChange={(e) => updateInput('employees', Number(e.target.value))}
                     placeholder="3"
+                    error={errors.employees}
                     min={1}
                     aria-label="Number of employees doing paperwork"
                   />
@@ -163,6 +196,7 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
                 onChange={(e) => updateInput('rejectionRate', Number(e.target.value))}
                 placeholder="12"
                 hint="Percent of docs kicked back for re-review"
+                error={errors.rejectionRate}
                 min={0}
                 max={100}
                 aria-label="Document rejection / rework rate percent"
@@ -189,6 +223,7 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
                     onChange={(e) => updateInput('hourlyWage', Number(e.target.value))}
                     placeholder="28"
                     hint="Fully-loaded hourly labor cost"
+                    error={errors.hourlyWage}
                     min={0}
                     aria-label="Average hourly wage in dollars"
                   />
@@ -209,10 +244,15 @@ export default function InputForm({ inputs, onInputChange }: InputFormProps) {
             </div>
           </div>
 
-          <p className="text-center text-xs text-gray-500 pt-2">
-            Results update live as you change inputs.
+          <Button type="submit" size="lg" className="w-full mt-6">
+            <FileText className="h-5 w-5 mr-2" />
+            Calculate My Cost
+          </Button>
+
+          <p className="text-center text-xs text-gray-500">
+            No signup required. See results instantly.
           </p>
-        </div>
+        </form>
       </Card>
     </motion.div>
   );
